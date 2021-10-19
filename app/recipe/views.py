@@ -49,3 +49,12 @@ class RecipeViewSets(viewsets.ModelViewSet):
     def get_queryset(self):
         """Retrieve the recipes for the authenticated user"""
         return self.queryset.filter(user=self.request.user)
+
+    def get_serializer_class(self):
+        """Return appropriate serializer class"""
+        # ModelViewSet support the retrive but we want it to
+        # use the new details serializer that's why we override
+        # the method it use to get the right serializer
+        if self.action == "retrieve":
+            return serializers.RecipeDetailSerializer
+        return self.serializer_class

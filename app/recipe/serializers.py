@@ -34,3 +34,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ("id", "title", "ingredients", "tags", "time_minutes", "price", "link")
         read_only_fields = ("id",)
+
+
+class RecipeDetailSerializer(RecipeSerializer):
+    """Serialize a recipe details"""
+
+    # we can nest serializers and use them
+    # many as it is many to many relationship and read_only mean
+    # read_only means you can't create a recipe by providing this values
+    ingredients = IngredientSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
