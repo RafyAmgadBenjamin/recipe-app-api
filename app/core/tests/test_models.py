@@ -59,7 +59,7 @@ class ModelTests(TestCase):
         self.assertEqual(str(recipe), recipe.title)
 
     # this mean we are mocking the uuid4 method in our test
-    # to return specific restult we want
+    # to return specific result we want
     @patch("uuid.uuid4")
     def test_recipe_file_name_uuid(self, mock_uuid):
         """Test that image is saved in the correct location"""

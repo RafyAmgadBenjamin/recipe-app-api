@@ -1,6 +1,8 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from core.models import Tag, Ingredient, Recipe
 from recipe import serializers
@@ -57,8 +59,31 @@ class RecipeViewSets(viewsets.ModelViewSet):
         # the method it use to get the right serializer
         if self.action == "retrieve":
             return serializers.RecipeDetailSerializer
+        elif self.action == "upload_image":
+            return serializers.RecipeImageSerializer
         return self.serializer_class
 
     def perform_create(self, serializer):
         """Create new recipe"""
         serializer.save(user=self.request.user)
+
+    # detail means that we are going to use the ID
+    @action(methods=["POST"], detail=True, url_path="upload-image")
+    def upload_image(self, request, pk=None):
+        """Upload an image to a recipe"""
+        # this will get the object based on the id passed in the URL
+        recipe = self.get_object()
+        ### we could use here RecipeImageSerializer but we used get_serializer method
+        # then we update get_serializet_class method, so it can select the correct serializer
+        # this is a best bractise and allow the browseable API to works right
+        serializer = self.get_serializer(recipe, data=request.data)
+        if serializer.is_valid():
+            # since we are using Modelserializer it allow us to save with the update data
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(
+            # serializer will do automatic validation on our data types
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
